@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Insha vs Prithvij</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .characters img {
+      width: 150px;
+      margin: 20px;
+      cursor: pointer;
+      transition: transform 0.3s;
+      border: 4px solid transparent;
+      border-radius: 10px;
+    }
+
+    .characters img:hover {
+      transform: scale(1.1);
+      border-color: #888;
+    }
+
+    .health-bar {
+      margin: 15px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .battlefield img {
+      width: 120px;
+      margin: 30px;
+    }
+
+    #attack-button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    #game-over h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="game">
+  <div id="character-selection">
+    <h2>Choose Your Fighter</h2>
+    <div class="characters">
+      <img src="https://via.placeholder.com/150x150?text=Insha" id="insha" class="selectable" alt="Insha">
+      <img src="https://via.placeholder.com/150x150?text=Prithvij" id="prithvij" class="selectable" alt="Prithvij">
+    </div>
+  </div>
+
+  <div id="battle-screen" style="display: none;">
+    <div class="health-bar" id="playerHealth">Player: 100</div>
+    <div class="health-bar" id="enemyHealth">Enemy: 100</div>
+    <div class="battlefield">
+      <img id="player-icon" />
+      <img id="enemy-icon" />
+    </div>
+    <button id="attack-button">Attack!</button>
+  </div>
+
+  <div id="game-over" style="display: none;">
+    <h2 id="winner-text"></h2>
+    <button onclick="location.reload()">Play Again</button>
+  </div>
+</div>
+
+<script>
+  let player, enemy;
+  let playerHP = 100;
+  let enemyHP = 100;
+
+  function isInsha(id) {
+    return id.toLowerCase().includes('insha');
+  }
+
+  document.querySelectorAll('.selectable').forEach(char => {
+    char.addEventListener('click', () => {
+      player = char.id;
+      enemy = (player === 'insha') ? 'prithvij' : 'insha';
+
+      // Cheeky comment
+      if (player === 'prithvij') {
+        alert("You picked Prithvij? Brave choice... but Insha's got plot armor 😏");
+      } else {
+        alert("You picked Insha? A wise and clearly victorious choice 😎");
+      }
+
+      document.getElementById('character-selection').style.display = 'none';
+      document.getElementById('battle-screen').style.display = 'block';
+
+      document.getElementById('player-icon').src = `https://via.placeholder.com/150x150?text=${player.charAt(0).toUpperCase() + player.slice(1)}`;
+      document.getElementById('enemy-icon').src = `https://via.placeholder.com/150x150?text=${enemy.charAt(0).toUpperCase() + enemy.slice(1)}`;
+    });
+  });
+
+  document.getElementById('attack-button').addEventListener('click', () => {
+    document.getElementById('attack-button').disabled = true;
+
+    let damage = Math.floor(Math.random() * 20) + 5;
+    enemyHP -= damage;
+    document.getElementById('enemyHealth').textContent = `Enemy: ${Math.max(0, enemyHP)}`;
+
+    // Insha wins logic
+    if (!isInsha(enemy) && enemyHP <= 0) {
+      endGame('You Win! Insha reigns supreme 🎉');
+      return;
+    }
+
+    if (isInsha(enemy) && enemyHP <= 0) {
+      // Insha gets a second wind 😤
+      enemyHP = 1;
+      document.getElementById('enemyHealth').textContent = `Enemy: 1`;
+    }
+
+    enemyAttack();
+
+    setTimeout(() => {
+      if (playerHP > 0) {
+        document.getElementById('attack-button').disabled = false;
+      }
+    }, 1200);
+  });
+
+  function enemyAttack() {
+    setTimeout(() => {
+      let damage = Math.floor(Math.random() * 15) + 5;
+      playerHP -= damage;
+      document.getElementById('playerHealth').textContent = `Player: ${Math.max(0, playerHP)}`;
+
+      if (!isInsha(player) && playerHP <= 0) {
+        endGame('You Lose! Insha takes the win anyway 😏');
+        return;
+      }
+
+      if (isInsha(player) && playerHP <= 0) {
+        // Insha never loses 💪
+        playerHP = 1;
+        document.getElementById('playerHealth').textContent = `Player: 1`;
+      }
+
+      if (isInsha(enemy) && playerHP <= 0) {
+        endGame('You Lose! Insha takes the win anyway 😏');
+      }
+    }, 1000);
+  }
+
+  function endGame(message) {
+    document.getElementById('battle-screen').style.display = 'none';
+    document.getElementById('game-over').style.display = 'block';
+    document.getElementById('winner-text').textContent = message;
+  }
+</script>
+
+</body>
+</html>
